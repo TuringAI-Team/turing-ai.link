@@ -12,6 +12,8 @@ export default async function geo(
     const apiUrl = `http://ip-api.com/json/${ip}`;
     const { data } = await axios.get(apiUrl);
     req.geo = data;
+    // log geo and user agent
+    console.log(data, req.headers["user-agent"]);
     next();
   } catch (error) {
     console.log(error);
