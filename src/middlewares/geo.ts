@@ -6,7 +6,7 @@ export default async function geo(
   res: Response,
   next: NextFunction
 ) {
-  const ip = req.ip;
+  var ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   console.log(ip);
   try {
     const apiUrl = `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.IPGEOLOCATION_KEY}&ip=${ip}`;
