@@ -17,7 +17,8 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     .from("users_new")
     .update({
       metadata: {
-        country: req.geo.country_name,
+        country: req.geo.country,
+        region: req.geo.regionName,
       },
     })
     .eq("id", id);
@@ -31,15 +32,14 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     if (!clicks) clicks = 0;
     let geoClicks = fullCampaign.stats?.geoClicks;
     if (!geoClicks) geoClicks = {};
-    if (!geoClicks[req.geo.country_name]) geoClicks[req.geo.country_name] = 0;
+    if (!geoClicks[req.geo.country]) geoClicks[req.geo.country] = 0;
     console.log(geoClicks);
     await supabase.from("campaigns").update({
       stats: {
         clicks: clicks + 1,
         geoClicks: {
           ...geoClicks,
-          [req.geo.country_name]:
-            fullCampaign.stats.geoClicks[req.geo.country_name] + 1,
+          [req.geo.country]: fullCampaign.stats.geoClicks[req.geo.country] + 1,
         },
       },
     });
