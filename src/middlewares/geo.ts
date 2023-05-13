@@ -8,8 +8,9 @@ export default async function geo(
 ) {
   var ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   console.log(ip);
+
   try {
-    const apiUrl = `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.IPGEOLOCATION_KEY}&ip=${ip}`;
+    const apiUrl = `http://ip-api.com/json/${ip}`;
     const { data } = await axios.get(apiUrl);
     req.geo = data;
     next();
