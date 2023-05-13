@@ -13,7 +13,10 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     res.status(404).send("Not found");
     return;
   }
-
+  let userAgent = req.headers["user-agent"];
+  if (userAgent.includes("Discordbot/2.0") || userAgent.includes("facebook")) {
+    return;
+  }
   await supabase
     .from("users_new")
     .update({
@@ -37,6 +40,16 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     let uniqueClicks = fullCampaign.stats?.uniqueClicks;
     if (!uniqueClicks) uniqueClicks = [];
     if (!uniqueClicks.includes(id)) uniqueClicks.push(id);
+
+    let tempClicks = fullCampaign.tempStats?.clicks;
+    if (!tempClicks) tempClicks = 0;
+    let tempGeoClicks = fullCampaign.tempStats?.geoClicks;
+    if (!tempGeoClicks) tempGeoClicks = {};
+    if (!tempGeoClicks[req.geo.country]) tempGeoClicks[req.geo.country] = 0;
+    let tempUniqueClicks = fullCampaign.tempStats?.uniqueClicks;
+    if (!tempUniqueClicks) tempUniqueClicks = [];
+    if (!tempUniqueClicks.includes(id)) tempUniqueClicks.push(id);
+
     await supabase
       .from("campaigns")
       .update({
@@ -48,6 +61,15 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
               fullCampaign.stats.geoClicks[req.geo.country] + 1,
           },
           uniqueClicks: uniqueClicks,
+        },
+        tempStats: {
+          clicks: tempClicks + 1,
+          geoClicks: {
+            ...tempGeoClicks,
+            [req.geo.country]:
+              fullCampaign.tempStats.geoClicks[req.geo.country] + 1,
+          },
+          uniqueClicks: tempUniqueClicks,
         },
       })
       .eq("title", c);
