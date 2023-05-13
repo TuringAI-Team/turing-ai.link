@@ -33,7 +33,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     let geoClicks = fullCampaign.stats?.geoClicks;
     if (!geoClicks) geoClicks = {};
     if (!geoClicks[req.geo.country]) geoClicks[req.geo.country] = 0;
-    console.log(geoClicks);
+    console.log(geoClicks, req.geo);
     await supabase.from("campaigns").update({
       stats: {
         clicks: clicks + 1,
