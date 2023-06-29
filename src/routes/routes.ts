@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { refreshCache } from "../modules/cache.js";
 import cache from "../modules/redis.js";
 import supabase from "../modules/supabase.js";
-import { pub } from "src/modules/mq.js";
+import { pub } from "../modules/mq.js";
 const router = express.Router();
 
 router.get("/:c/:id", async (req: Request, res: Response) => {
