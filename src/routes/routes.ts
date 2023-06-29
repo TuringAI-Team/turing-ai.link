@@ -3,11 +3,12 @@ import { Request, Response } from "express";
 import { refreshCache } from "../modules/cache.js";
 import cache from "../modules/redis.js";
 import supabase from "../modules/supabase.js";
+import { pub } from "src/modules/mq.js";
 const router = express.Router();
 
 router.get("/:c/:id", async (req: Request, res: Response) => {
   let { c, id } = req.params;
-  let data: any = await cache.get(c);
+  let data: any = await cache.get(`campaigns:${c}`);
   data = JSON.parse(data);
   if (data.link) {
     res.redirect(data.link);
@@ -19,15 +20,25 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
   if (userAgent.includes("Discordbot/2.0") || userAgent.includes("facebook")) {
     return;
   }
-  await supabase
-    .from("users_new")
-    .update({
-      metadata: {
-        country: req.geo.country,
-        region: req.geo.regionName,
+  await pub.send(
+    {
+      exchange: "messages",
+      routingKey: "message",
+    },
+    JSON.stringify({
+      id: "update",
+      data: {
+        collection: "users_new",
+        id: id,
+        updates: {
+          metadata: {
+            country: req.geo.country,
+            region: req.geo.regionName,
+          },
+        },
       },
     })
-    .eq("id", id);
+  );
   let { data: fullCampaign } = await supabase
     .from("campaigns")
     .select("*")
