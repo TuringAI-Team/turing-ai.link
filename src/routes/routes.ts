@@ -1,14 +1,16 @@
 import express from "express";
 import { Request, Response } from "express";
-import cache, { refreshCache } from "../modules/cache.js";
+import { refreshCache } from "../modules/cache.js";
+import cache from "../modules/redis.js";
 import supabase from "../modules/supabase.js";
 const router = express.Router();
 
 router.get("/:c/:id", async (req: Request, res: Response) => {
   let { c, id } = req.params;
-  let link = await cache.get(c);
-  if (link) {
-    res.redirect(link);
+  let data: any = await cache.get(c);
+  data = JSON.parse(data);
+  if (data.link) {
+    res.redirect(data.link);
   } else {
     res.status(404).send("Not found");
     return;

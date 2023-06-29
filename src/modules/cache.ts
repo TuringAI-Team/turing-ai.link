@@ -1,12 +1,7 @@
-import keyv from "keyv";
 import supabase from "./supabase.js";
-
-const cache = new keyv();
-
-cache.on("error", (err) => console.log("Connection Error", err));
+import cache from "./redis.js";
 
 async function refreshCache() {
-  cache.clear();
   const { data: campaigns, error } = await supabase
     .from("campaigns")
     .select("*")
@@ -15,9 +10,8 @@ async function refreshCache() {
     console.log(error);
   }
   campaigns.forEach((campaign) => {
-    cache.set(campaign.title, campaign.link);
+    cache.set(`campaigns:${campaign.id}`, JSON.stringify(campaign));
   });
 }
 
-export default cache;
 export { refreshCache };

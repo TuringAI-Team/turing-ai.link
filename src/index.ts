@@ -4,7 +4,7 @@ import cors from "cors";
 import "dotenv/config";
 import rateLimit from "express-rate-limit";
 import supabase from "./modules/supabase.js";
-import cache, { refreshCache } from "./modules/cache.js";
+import { refreshCache } from "./modules/cache.js";
 
 // routes
 import Routes from "./routes/routes.js";
@@ -43,4 +43,7 @@ app.listen(app.get("port"), async () => {
   console.log(`Server is running on port ${app.get("port")}`);
   // load active campaigns into cache
   await refreshCache();
+  setInterval(async () => {
+    await refreshCache();
+  }, 1000 * 60 * 60 * 24);
 });
