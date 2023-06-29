@@ -28,7 +28,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     JSON.stringify({
       id: "update",
       data: {
-        collection: "users_new",
+        collection: "users",
         id: id,
         updates: {
           metadata: {
