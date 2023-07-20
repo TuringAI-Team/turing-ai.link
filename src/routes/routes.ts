@@ -40,49 +40,42 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     })
   );
   let { data: fullCampaign } = await supabase
-    .from("campaigns")
+    .from("campaigns_new")
     .select("*")
     .eq("title", c)
     .single();
   if (fullCampaign) {
-    let clicks = fullCampaign.stats?.clicks;
+    let clicks = fullCampaign.stats?.clicks.total;
     if (!clicks) clicks = 0;
-    let geoClicks = fullCampaign.stats?.geoClicks;
+    let geoClicks = fullCampaign.stats?.clicks.geo;
     if (!geoClicks) geoClicks = {};
     if (!geoClicks[req.geo.country]) geoClicks[req.geo.country] = 0;
-    let uniqueClicks = fullCampaign.stats?.uniqueClicks;
-    if (!uniqueClicks) uniqueClicks = [];
-    if (!uniqueClicks.includes(id)) uniqueClicks.push(id);
 
-    let tempClicks = fullCampaign.tempStats?.clicks;
-    if (!tempClicks) tempClicks = 0;
-    let tempGeoClicks = fullCampaign.tempStats?.geoClicks;
-    if (!tempGeoClicks) tempGeoClicks = {};
-    if (!tempGeoClicks[req.geo.country]) tempGeoClicks[req.geo.country] = 0;
-    let tempUniqueClicks = fullCampaign.tempStats?.uniqueClicks;
-    if (!tempUniqueClicks) tempUniqueClicks = [];
-    if (!tempUniqueClicks.includes(id)) tempUniqueClicks.push(id);
-    await supabase
-      .from("campaigns")
-      .update({
-        stats: {
-          clicks: clicks + 1,
-          geoClicks: {
-            ...geoClicks,
-            [req.geo.country]: geoClicks[req.geo.country] + 1,
+    await pub.send(
+      {
+        exchange: "messages",
+        routingKey: "message",
+      },
+      JSON.stringify({
+        id: "update",
+        data: {
+          collection: "campaigns_new",
+          id: fullCampaign.id,
+          updates: {
+            stats: {
+              views: fullCampaign.stats?.views,
+              clicks: {
+                total: clicks + 1,
+                geo: {
+                  ...geoClicks,
+                  [req.geo.country]: geoClicks[req.geo.country] + 1,
+                },
+              },
+            },
           },
-          uniqueClicks: uniqueClicks,
-        },
-        tempStats: {
-          clicks: tempClicks + 1,
-          geoClicks: {
-            ...tempGeoClicks,
-            [req.geo.country]: tempGeoClicks[req.geo.country] + 1,
-          },
-          uniqueClicks: tempUniqueClicks,
         },
       })
-      .eq("title", c);
+    );
   }
 });
 
