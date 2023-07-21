@@ -70,7 +70,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       JSON.stringify({
         id: "update",
         data: {
-          collection: "campaigns_new",
+          collection: "campaigns",
           id: fullCampaign.id,
           updates: {
             stats: stats,
@@ -78,6 +78,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       })
     );
+    /*
     await supabase
       .from("campaigns_new")
       .update({ stats: stats })
@@ -87,7 +88,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     updatedCampaign = JSON.parse(updatedCampaign);
     updatedCampaign.stats = stats;
 
-    cache.set(`campaigns:${c}`, JSON.stringify(updatedCampaign));
+    cache.set(`campaigns:${c}`, JSON.stringify(updatedCampaign));*/
   }
 });
 
