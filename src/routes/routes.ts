@@ -41,11 +41,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       },
     })
   );
-  let { data: fullCampaign } = await supabase
-    .from("campaigns_new")
-    .select("*")
-    .eq("id", c)
-    .single();
+  let fullCampaign: any = data;
   if (fullCampaign) {
     let clicks = fullCampaign.stats?.clicks.total;
     if (!clicks) clicks = 0;
