@@ -79,6 +79,22 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       })
     );
+    await pub.send(
+      {
+        exchange: "messages:dev",
+        routingKey: "message",
+      },
+      JSON.stringify({
+        id: "update",
+        data: {
+          collection: "campaigns",
+          id: fullCampaign.id,
+          updates: {
+            stats: stats,
+          },
+        },
+      })
+    );
     /*
     await supabase
       .from("campaigns_new")
