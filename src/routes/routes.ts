@@ -79,13 +79,16 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       })
     );
-    await delay(1000);
-    let { data: fc } = await supabase
+    await supabase
       .from("campaigns_new")
-      .select("*")
-      .eq("id", c)
-      .single();
-    console.log(fc.stats);
+      .update({ stats: stats })
+      .eq("id", fullCampaign.id);
+
+    let updatedCampaign: any = await cache.get(`campaigns:${c}`);
+    updatedCampaign = JSON.parse(updatedCampaign);
+    updatedCampaign.stats = stats;
+
+    cache.set(`campaigns:${c}`, JSON.stringify(updatedCampaign));
   }
 });
 
