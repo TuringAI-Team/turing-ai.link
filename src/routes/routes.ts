@@ -51,7 +51,17 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     let geoClicks = fullCampaign.stats?.clicks.geo;
     if (!geoClicks) geoClicks = {};
     if (!geoClicks[req.geo.country]) geoClicks[req.geo.country] = 0;
-
+    let stats = {
+      views: fullCampaign.stats?.views,
+      clicks: {
+        total: clicks + 1,
+        geo: {
+          ...geoClicks,
+          [req.geo.country]: geoClicks[req.geo.country] + 1,
+        },
+      },
+    };
+    console.log(stats);
     await pub.send(
       {
         exchange: "messages",
@@ -63,16 +73,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
           collection: "campaigns",
           id: fullCampaign.id,
           updates: {
-            stats: {
-              views: fullCampaign.stats?.views,
-              clicks: {
-                total: clicks + 1,
-                geo: {
-                  ...geoClicks,
-                  [req.geo.country]: geoClicks[req.geo.country] + 1,
-                },
-              },
-            },
+            stats: stats,
           },
         },
       })
