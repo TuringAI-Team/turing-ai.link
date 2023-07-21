@@ -10,9 +10,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
   let { c, id } = req.params;
   let data: any = await cache.get(`campaigns:${c}`);
   data = JSON.parse(data);
-  if (data.link) {
-    res.redirect(data.link);
-  } else {
+  if (!data.link) {
     res.status(404).send("Not found");
     return;
   }
@@ -20,6 +18,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
   if (userAgent.includes("Discordbot/2.0") || userAgent.includes("facebook")) {
     return;
   }
+  console.log("sending message");
   await pub.send(
     {
       exchange: "messages",
@@ -78,6 +77,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       })
     );
   }
+  res.redirect(data.link);
 });
 
 router.post("/refresh", async (req: Request, res: Response) => {
