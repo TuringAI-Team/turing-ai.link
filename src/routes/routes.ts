@@ -10,7 +10,9 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
   let { c, id } = req.params;
   let data: any = await cache.get(`campaigns:${c}`);
   data = JSON.parse(data);
-  if (!data.link) {
+  if (data.link) {
+    res.redirect(data.link);
+  } else {
     res.status(404).send("Not found");
     return;
   }
@@ -41,7 +43,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
   let { data: fullCampaign } = await supabase
     .from("campaigns_new")
     .select("*")
-    .eq("title", c)
+    .eq("id", c)
     .single();
   if (fullCampaign) {
     let clicks = fullCampaign.stats?.clicks.total;
@@ -77,7 +79,6 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       })
     );
   }
-  res.redirect(data.link);
 });
 
 router.post("/refresh", async (req: Request, res: Response) => {
