@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { refreshCache } from "../modules/cache.js";
 import cache from "../modules/redis.js";
 import supabase from "../modules/supabase.js";
+import delay from "delay";
 import { pub } from "../modules/mq.js";
 const router = express.Router();
 
@@ -70,7 +71,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       JSON.stringify({
         id: "update",
         data: {
-          collection: "campaigns",
+          collection: "campaigns_new",
           id: fullCampaign.id,
           updates: {
             stats: stats,
@@ -78,6 +79,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       })
     );
+    await delay(1000);
     let { data: fc } = await supabase
       .from("campaigns_new")
       .select("*")
