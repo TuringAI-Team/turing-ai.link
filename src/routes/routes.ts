@@ -50,6 +50,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     let geoClicks = fullCampaign.stats?.clicks.geo;
     if (!geoClicks) geoClicks = {};
     if (!geoClicks[req.geo.country]) geoClicks[req.geo.country] = 0;
+    console.log(clicks, geoClicks);
 
     await pub.send(
       {
