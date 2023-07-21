@@ -64,13 +64,12 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         routingKey: "message",
       },
       JSON.stringify({
-        id: "update",
+        id: "campaigns",
         data: {
-          collection: "campaigns",
+          action: "incrementStats",
           id: fullCampaign.id,
-          updates: {
-            stats: stats,
-          },
+          type: "clicks",
+          geo: req.geo.country,
         },
       })
     );
@@ -80,13 +79,12 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         routingKey: "message",
       },
       JSON.stringify({
-        id: "update",
+        id: "campaigns",
         data: {
-          collection: "campaigns",
+          action: "incrementStats",
           id: fullCampaign.id,
-          updates: {
-            stats: stats,
-          },
+          type: "clicks",
+          geo: req.geo.country,
         },
       })
     );
