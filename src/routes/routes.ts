@@ -59,7 +59,7 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
       JSON.stringify({
         id: "update",
         data: {
-          collection: "campaigns_new",
+          collection: "campaigns",
           id: fullCampaign.id,
           updates: {
             stats: {
