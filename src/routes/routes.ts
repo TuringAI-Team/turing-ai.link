@@ -62,7 +62,6 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       },
     };
-    console.log(stats);
     await pub.send(
       {
         exchange: "messages",
