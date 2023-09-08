@@ -22,25 +22,15 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
     return;
   }
   console.log("sending message");
-  await pub.send(
-    {
-      exchange: "messages",
-      routingKey: "message",
+
+  await update("update", {
+    collection: "users",
+    id: id,
+    metadata: {
+      country: req.geo.country,
+      region: req.geo.regionName,
     },
-    JSON.stringify({
-      id: "update",
-      data: {
-        collection: "users",
-        id: id,
-        updates: {
-          metadata: {
-            country: req.geo.country,
-            region: req.geo.regionName,
-          },
-        },
-      },
-    })
-  );
+  });
   let fullCampaign: any = data;
   if (fullCampaign) {
     let clicks = fullCampaign.stats?.clicks.total;
@@ -58,36 +48,11 @@ router.get("/:c/:id", async (req: Request, res: Response) => {
         },
       },
     };
-    await pub.send(
-      {
-        exchange: "messages",
-        routingKey: "message",
-      },
-      JSON.stringify({
-        id: "campaigns",
-        data: {
-          action: "incrementStats",
-          id: fullCampaign.id,
-          type: "clicks",
-          geo: req.geo.country,
-        },
-      })
-    );
-    await pub.send(
-      {
-        exchange: "messages:dev",
-        routingKey: "message",
-      },
-      JSON.stringify({
-        id: "campaigns",
-        data: {
-          action: "incrementStats",
-          id: fullCampaign.id,
-          type: "clicks",
-          geo: req.geo.country,
-        },
-      })
-    );
+    await update("update", {
+      collection: "campaigns",
+      id: fullCampaign.id,
+      ...stats,
+    });
     /*
     await supabase
       .from("campaigns_new")
@@ -112,4 +77,40 @@ router.post("/refresh", async (req: Request, res: Response) => {
   }
 });
 
+export async function update(action: "update" | "vote", data: any) {
+  let d = {};
+
+  let collection;
+  let id;
+  if (action === "update") {
+    collection = data.collection;
+    id = data.id;
+    delete data.collection;
+    delete data.id;
+    d = {
+      collection,
+      id,
+      updates: data,
+    };
+  } else {
+    d = {
+      userId: data.userId,
+    };
+  }
+  try {
+    await pub.send(
+      {
+        exchange: "db",
+        routingKey: "db",
+      },
+      JSON.stringify({
+        type: action,
+        ...d,
+      })
+    );
+  } catch (e) {
+    console.log(e);
+    return { error: e };
+  }
+}
 export default router;
