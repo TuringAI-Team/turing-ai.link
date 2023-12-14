@@ -3,7 +3,7 @@ import cache from "./redis.js";
 
 async function refreshCache() {
   const { data: campaigns, error } = await supabase
-    .from("campaigns")
+    .from("campaigns_new")
     .select("*")
     .eq("active", true);
   if (error) {
